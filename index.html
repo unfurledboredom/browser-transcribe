@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#101828" />
+  <title>Browser Transcriber + Diarization</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Serverless Chrome transcription</p>
+        <h1>Live Transcriber</h1>
+        <p class="subhead">Runs in the browser with a Web Speech recognition ledger, Web Audio VAD for speaker metadata, and local acoustic speaker clustering.</p>
+      </div>
+      <div class="status-card" aria-live="polite">
+        <span id="statusDot" class="dot"></span>
+        <div>
+          <strong id="statusText">Ready</strong>
+          <span id="statusDetail">Microphone is idle.</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel controls" aria-label="Controls">
+      <div class="control-row">
+        <label>
+          Language
+          <input id="language" value="en-US" autocomplete="off" />
+        </label>
+        <label>
+          VAD sensitivity
+          <input id="vadSensitivity" type="range" min="0" max="18" value="6" />
+          <span id="vadSensitivityValue">6 dB</span>
+        </label>
+        <label>
+          New speaker threshold
+          <input id="speakerThreshold" type="range" min="4" max="50" value="12" />
+          <span id="speakerThresholdValue">0.12</span>
+        </label>
+        <label>
+          Max speakers
+          <input id="maxSpeakers" type="number" min="1" max="12" value="8" />
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="startBtn" class="primary">Start meeting</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="newMeetingBtn" disabled>New meeting</button>
+        <button id="downloadTxtBtn" disabled>Download .txt</button>
+        <button id="downloadJsonBtn" disabled>Download .json</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel meter-panel">
+        <h2>Audio</h2>
+        <div class="meter-wrap" aria-label="Audio level">
+          <div id="meter" class="meter"></div>
+        </div>
+        <dl class="stats">
+          <div><dt>Mic level</dt><dd id="micDb">—</dd></div>
+          <div><dt>VAD gate</dt><dd id="vadGate">—</dd></div>
+          <div><dt>Noise floor</dt><dd id="noiseFloor">—</dd></div>
+          <div><dt>Current speaker</dt><dd id="currentSpeaker">—</dd></div>
+          <div><dt>Segments</dt><dd id="segmentCount">0</dd></div>
+          <div><dt>Recognition</dt><dd id="recognitionState">idle</dd></div>
+          <div><dt>Diarization</dt><dd id="speakerDebug">—</dd></div>
+        </dl>
+        <p class="small muted">Tip: lower VAD sensitivity if quiet speech is missed; raise it only if background noise creates false speech. For diarization, lower the new-speaker threshold if everyone stays as speaker 1; raise it if one person splits.</p>
+      </article>
+
+      <article class="panel transcript-panel">
+        <div class="transcript-header">
+          <h2>Transcript</h2>
+          <p id="meetingName" class="muted"></p>
+        </div>
+        <div id="interim" class="interim" aria-live="polite"></div>
+        <div id="transcript" class="transcript" aria-live="polite"></div>
+      </article>
+    </section>
+  </main>
+
+  <template id="turnTemplate">
+    <section class="turn">
+      <div class="speaker-pill"></div>
+      <div class="turn-body">
+        <div class="turn-meta"></div>
+        <p class="turn-text"></p>
+      </div>
+    </section>
+  </template>
+
+  <script type="module" src="app.js?v=7-ledger"></script>
+</body>
+</html>
