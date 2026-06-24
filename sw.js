@@ -1,18 +1,16 @@
-const CACHE = "browser-transcriber-v3";
-const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json"];
-
+// GitHub Pages cleanup service worker.
+// Earlier local builds registered a service worker. The GitHub Pages build does not need one.
+// If an older registration exists at this path, this script clears old caches and unregisters itself.
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (event) => {
-  event.respondWith(caches.match(event.request).then((hit) => hit || fetch(event.request)));
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key.startsWith("browser-transcriber-")).map((key) => caches.delete(key)));
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of clients) client.navigate(client.url);
+  })());
 });
